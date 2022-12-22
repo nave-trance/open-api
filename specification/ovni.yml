@@ -1,0 +1,291 @@
+openapi: 3.0.0
+info:
+  title: OVNI
+  version: 1.0.0
+  description: Event tours management
+  contact:
+    email: arthur.henrique.della.fraga@gmail.com
+    name: Arthur Henrique
+    url: 'https://github.com/nave-trance'
+  license:
+    name: GPL-3.0
+    url: 'https://choosealicense.com/licenses/gpl-3.0/'
+tags:
+  - name: public
+    description: Public data generally available
+paths:
+  /tours:
+    get:
+      tags:
+        - public
+      operationId: get-tours
+      description: Retrive active tours
+      parameters: []
+      responses:
+        '200':
+          description: Tours successfully collected
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  description: Tour information
+                  properties:
+                    id:
+                      description: The unique identifier of a Tour
+                      type: integer
+                    title:
+                      type: string
+                      example: Samsara
+                      description: Related event title
+                    city:
+                      type: string
+                      example: Maceió - AL
+                      description: The city from where the Tour departures
+                      readOnly: true
+                    departure:
+                      example: '2022-12-06T22:00:00Z'
+                      format: date-time
+                      type: string
+                      description: Date and time of Tour departure
+                      readOnly: true
+                    route:
+                      type: array
+                      description: The sequence of stops of the Tour
+                      nullable: true
+                      items:
+                        type: object
+                        description: A meanful stop on a route
+                        additionalProperties: false
+                        properties:
+                          type:
+                            type: string
+                            example: boarding
+                            description: The stop type
+                            readOnly: true
+                          place:
+                            description: A named address
+                            type: string
+                            example: Airport
+                            readOnly: true
+                            title: ''
+                          delay:
+                            description: A portion of time
+                            type: integer
+                            example: 600
+                            default: 600
+                            nullable: true
+                            readOnly: true
+                        required:
+                          - type
+                          - place
+                          - delay
+                  required:
+                    - id
+                    - title
+                    - city
+                    - departure
+              examples:
+                Example 1:
+                  value:
+                    - id: 0
+                      title: dont-stop
+                      departure: '2022-12-10T22:00:00Z'
+                      city: Maceió - AL
+                      route:
+                        - type: boarding
+                          place: Bomba do Gonzaga
+                          delay: 600
+                        - type: boarding
+                          place: Habibis
+                          delay: 600
+                        - type: boarding
+                          place: Aeroporto
+                          delay: 600
+                        - type: stop
+                          place: Escadas
+                          delay: 6000
+                    - id: 1
+                      title: samsara-leave
+                      departure: '2023-01-14T22:00:00Z'
+                      city: Maceió - AL
+                      route:
+                        - type: boarding
+                          place: Bomba do Gonzaga
+                          delay: 600
+                        - type: boarding
+                          place: Habibis
+                          delay: 600
+                    - id: 2
+                      title: bug-open-air
+                      departure: '2023-03-18T22:00:00Z'
+                      city: Recife - PE
+                      route:
+                        - type: boarding
+                          place: Bomba do Gonzaga
+                          delay: 600
+                        - type: boarding
+                          place: Habibis
+                          delay: 600
+        '404':
+          description: Unable to collect tours
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    description: A human readable error message
+                    type: string
+                    default: There were a problem processing this request
+                    readOnly: true
+                required:
+                  - message
+                description: A request handling error message
+        '500':
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    description: A human readable error message
+                    type: string
+                    default: There were a problem processing this request
+                    readOnly: true
+                required:
+                  - message
+                description: A request handling error message
+components:
+  schemas:
+    Tour_id:
+      description: The unique identifier of a Tour
+      type: integer
+      x-examples:
+        Example 1: 1
+    Tour:
+      type: object
+      description: Tour information
+      properties:
+        id:
+          description: The unique identifier of a Tour
+          type: integer
+          x-examples:
+            Example 1: 1
+        title:
+          type: string
+          example: Samsara
+          description: Related event title
+        city:
+          type: string
+          example: Maceió - AL
+          description: The city from where the Tour departures
+          readOnly: true
+        departure:
+          example: '2022-12-06T22:00:00Z'
+          format: date-time
+          type: string
+          description: Date and time of Tour departure
+          readOnly: true
+        route:
+          type: array
+          description: The sequence of stops of the Tour
+          nullable: true
+          items:
+            type: object
+            description: A meanful stop on a route
+            additionalProperties: false
+            properties:
+              type:
+                type: string
+                example: boarding
+                description: The stop type
+                readOnly: true
+              place:
+                description: A named address
+                type: string
+                example: Airport
+                readOnly: true
+                title: ''
+                x-examples:
+                  Example 1: Airport
+              delay:
+                description: A portion of time
+                type: integer
+                example: 600
+                default: 600
+                nullable: true
+                readOnly: true
+                x-examples:
+                  Example 1: 600
+            required:
+              - type
+              - place
+              - delay
+      required:
+        - id
+        - title
+        - city
+        - departure
+    Way:
+      type: object
+      description: A meanful stop on a route
+      additionalProperties: false
+      properties:
+        type:
+          type: string
+          example: boarding
+          description: The stop type
+          readOnly: true
+        place:
+          description: A named address
+          type: string
+          example: Airport
+          readOnly: true
+          title: ''
+          x-examples:
+            Example 1: Airport
+        delay:
+          description: A portion of time
+          type: integer
+          example: 600
+          default: 600
+          nullable: true
+          readOnly: true
+          x-examples:
+            Example 1: 600
+      required:
+        - type
+        - place
+        - delay
+    Place:
+      description: A named address
+      type: string
+      example: Airport
+      readOnly: true
+      title: ''
+      x-examples:
+        Example 1: Airport
+    Duration:
+      description: A portion of time
+      type: integer
+      example: 600
+      default: 600
+      nullable: true
+      readOnly: true
+      x-examples:
+        Example 1: 600
+    Error:
+      type: object
+      properties:
+        message:
+          description: A human readable error message
+          type: string
+          default: There were a problem processing this request
+          readOnly: true
+      required:
+        - message
+      description: A request handling error message
+  securitySchemes: {}
